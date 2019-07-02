@@ -17,7 +17,7 @@ ENV LANG="ja_JP.UTF-8" \
 COPY baseimage-docker-0.11.patch /tmp/
 
 ### install baseimage. ###
-RUN curl -LO https://github.com/phusion/baseimage-docker/archive/0.11.tar.gz baseimage-docker-0.11.tar.gz && \
+RUN curl -L https://github.com/phusion/baseimage-docker/archive/0.11.tar.gz -o baseimage-docker-0.11.tar.gz && \
     tar xfz baseimage-docker-0.11.tar.gz && \
     rm baseimage-docker-0.11.tar.gz && \
     patch -p 0 -t < baseimage-docker-0.11.patch && \
