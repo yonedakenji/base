@@ -1,0 +1,5 @@
+
+export JAVA_HOME=/system/MW/java
+export CLASSPATH=.:$JAVA_HOME/lib/tools.jar:$JAVA_HOME/lib/dt.jar
+export CATALINA_HOME=/system/MW/tomcat
+export PATH=$JAVA_HOME/bin:$CATALINA_HOME/bin:/system/MW/mysql/bin:$PATH

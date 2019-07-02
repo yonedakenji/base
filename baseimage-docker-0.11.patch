@@ -1,0 +1,259 @@
+diff -uprN baseimage-docker-0.11/image/bin/install_clean baseimage-docker-0.11/image/bin/install_clean
+--- baseimage-docker-0.11/image/bin/install_clean	2018-08-16 16:01:31.000000000 +0900
++++ baseimage-docker-0.11/image/bin/install_clean	2019-02-04 17:12:13.000000000 +0900
+@@ -11,7 +11,7 @@ fi
+ 
+ echo "Installing $ARGS"
+ 
+-apt-get -q update && apt-get -qy install $NO_RECOMMENDS $ARGS \
+-    && apt-get -qy autoremove \
+-    && apt-get clean \
+-    && rm -r /var/lib/apt/lists/*
++#apt-get -q update && apt-get -qy install $NO_RECOMMENDS $ARGS \
++#    && apt-get -qy autoremove \
++#    && apt-get clean \
++#    && rm -r /var/lib/apt/lists/*
+diff -uprN baseimage-docker-0.11/image/bin/my_init baseimage-docker-0.11/image/bin/my_init
+--- baseimage-docker-0.11/image/bin/my_init	2018-08-16 16:01:31.000000000 +0900
++++ baseimage-docker-0.11/image/bin/my_init	2019-02-05 10:49:33.000000000 +0900
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python3 -u
++#!/usr/local/bin/python3 -u
+ # -*- coding: utf-8 -*-
+ 
+ import argparse
+@@ -289,7 +289,7 @@ def run_post_shutdown_scripts():
+ 
+ def start_runit():
+     info("Booting runit daemon...")
+-    pid = os.spawnl(os.P_NOWAIT, "/usr/bin/runsvdir", "/usr/bin/runsvdir",
++    pid = os.spawnl(os.P_NOWAIT, "/usr/local/bin/runsvdir", "/usr/local/bin/runsvdir",
+                     "-P", "/etc/service")
+     info("Runit started as PID %d" % pid)
+     return pid
+@@ -303,14 +303,14 @@ def wait_for_runit_or_interrupt(pid):
+ def shutdown_runit_services(quiet=False):
+     if not quiet:
+         debug("Begin shutting down runit services...")
+-    os.system("/usr/bin/sv -w %d down /etc/service/* > /dev/null" % KILL_PROCESS_TIMEOUT)
++    os.system("/usr/local/bin/sv -w %d down /etc/service/* > /dev/null" % KILL_PROCESS_TIMEOUT)
+ 
+ 
+ def wait_for_runit_services():
+     debug("Waiting for runit services to exit...")
+     done = False
+     while not done:
+-        done = os.system("/usr/bin/sv status /etc/service/* | grep -q '^run:'") != 0
++        done = os.system("/usr/local/bin/sv status /etc/service/* | grep -q '^run:'") != 0
+         if not done:
+             time.sleep(0.1)
+             # According to https://github.com/phusion/baseimage-docker/issues/315
+diff -uprN baseimage-docker-0.11/image/bin/setuser baseimage-docker-0.11/image/bin/setuser
+--- baseimage-docker-0.11/image/bin/setuser	2018-08-16 16:01:31.000000000 +0900
++++ baseimage-docker-0.11/image/bin/setuser	2019-02-05 10:49:46.000000000 +0900
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python3
++#!/usr/local/bin/python3
+ 
+ '''
+ Copyright (c) 2013-2015 Phusion Holding B.V.
+diff -uprN baseimage-docker-0.11/image/buildconfig baseimage-docker-0.11/image/buildconfig
+--- baseimage-docker-0.11/image/buildconfig	2018-08-16 16:01:31.000000000 +0900
++++ baseimage-docker-0.11/image/buildconfig	2019-02-04 17:06:29.000000000 +0900
+@@ -1,6 +1,6 @@
+-export LC_ALL=C
+-export DEBIAN_FRONTEND=noninteractive
+-minimal_apt_get_install='apt-get install -y --no-install-recommends'
++#export LC_ALL=C
++#export DEBIAN_FRONTEND=noninteractive
++#minimal_apt_get_install='apt-get install -y --no-install-recommends'
+ 
+ # Default services
+ # Set 1 to the service you want to disable
+diff -uprN baseimage-docker-0.11/image/cleanup.sh baseimage-docker-0.11/image/cleanup.sh
+--- baseimage-docker-0.11/image/cleanup.sh	2018-08-16 16:01:31.000000000 +0900
++++ baseimage-docker-0.11/image/cleanup.sh	2019-02-04 17:11:05.000000000 +0900
+@@ -3,9 +3,9 @@ set -e
+ source /bd_build/buildconfig
+ set -x
+ 
+-apt-get clean
++#apt-get clean
+ find /bd_build/ -not \( -name 'bd_build' -or -name 'buildconfig' -or -name 'cleanup.sh' \) -delete
+ rm -rf /tmp/* /var/tmp/*
+-rm -rf /var/lib/apt/lists/*
++#rm -rf /var/lib/apt/lists/*
+ 
+ rm -f /etc/ssh/ssh_host_*
+diff -uprN baseimage-docker-0.11/image/prepare.sh baseimage-docker-0.11/image/prepare.sh
+--- baseimage-docker-0.11/image/prepare.sh	2018-08-16 16:01:31.000000000 +0900
++++ baseimage-docker-0.11/image/prepare.sh	2019-02-04 17:09:31.000000000 +0900
+@@ -11,38 +11,38 @@ mkdir -p /etc/container_environment
+ echo -n no > /etc/container_environment/INITRD
+ 
+ ## Enable Ubuntu Universe, Multiverse, and deb-src for main.
+-sed -i 's/^#\s*\(deb.*main restricted\)$/\1/g' /etc/apt/sources.list
+-sed -i 's/^#\s*\(deb.*universe\)$/\1/g' /etc/apt/sources.list
+-sed -i 's/^#\s*\(deb.*multiverse\)$/\1/g' /etc/apt/sources.list
+-apt-get update
++#sed -i 's/^#\s*\(deb.*main restricted\)$/\1/g' /etc/apt/sources.list
++#sed -i 's/^#\s*\(deb.*universe\)$/\1/g' /etc/apt/sources.list
++#sed -i 's/^#\s*\(deb.*multiverse\)$/\1/g' /etc/apt/sources.list
++#apt-get update
+ 
+ ## Fix some issues with APT packages.
+ ## See https://github.com/dotcloud/docker/issues/1024
+-dpkg-divert --local --rename --add /sbin/initctl
+-ln -sf /bin/true /sbin/initctl
++#dpkg-divert --local --rename --add /sbin/initctl
++#ln -sf /bin/true /sbin/initctl
+ 
+ ## Replace the 'ischroot' tool to make it always return true.
+ ## Prevent initscripts updates from breaking /dev/shm.
+ ## https://journal.paul.querna.org/articles/2013/10/15/docker-ubuntu-on-rackspace/
+ ## https://bugs.launchpad.net/launchpad/+bug/974584
+-dpkg-divert --local --rename --add /usr/bin/ischroot
+-ln -sf /bin/true /usr/bin/ischroot
++#dpkg-divert --local --rename --add /usr/bin/ischroot
++#ln -sf /bin/true /usr/bin/ischroot
+ 
+ # apt-utils fix for Ubuntu 16.04
+-$minimal_apt_get_install apt-utils
++#$minimal_apt_get_install apt-utils
+ 
+ ## Install HTTPS support for APT.
+-$minimal_apt_get_install apt-transport-https ca-certificates
++#$minimal_apt_get_install apt-transport-https ca-certificates
+ 
+ ## Install add-apt-repository
+-$minimal_apt_get_install software-properties-common
++#$minimal_apt_get_install software-properties-common
+ 
+ ## Upgrade all packages.
+-apt-get dist-upgrade -y --no-install-recommends -o Dpkg::Options::="--force-confold"
++#apt-get dist-upgrade -y --no-install-recommends -o Dpkg::Options::="--force-confold"
+ 
+ ## Fix locale.
+-$minimal_apt_get_install language-pack-en
+-locale-gen en_US
+-update-locale LANG=en_US.UTF-8 LC_CTYPE=en_US.UTF-8
+-echo -n en_US.UTF-8 > /etc/container_environment/LANG
+-echo -n en_US.UTF-8 > /etc/container_environment/LC_CTYPE
++#$minimal_apt_get_install language-pack-en
++#locale-gen en_US
++#update-locale LANG=en_US.UTF-8 LC_CTYPE=en_US.UTF-8
++#echo -n en_US.UTF-8 > /etc/container_environment/LANG
++#echo -n en_US.UTF-8 > /etc/container_environment/LC_CTYPE
+diff -uprN baseimage-docker-0.11/image/services/cron/cron.runit baseimage-docker-0.11/image/services/cron/cron.runit
+--- baseimage-docker-0.11/image/services/cron/cron.runit	2018-08-16 16:01:31.000000000 +0900
++++ baseimage-docker-0.11/image/services/cron/cron.runit	2019-02-05 11:35:06.000000000 +0900
+@@ -1,2 +1,2 @@
+ #!/bin/sh
+-exec /usr/sbin/cron -f
++exec /usr/sbin/crond -n -s
+diff -uprN baseimage-docker-0.11/image/services/cron/cron.sh baseimage-docker-0.11/image/services/cron/cron.sh
+--- baseimage-docker-0.11/image/services/cron/cron.sh	2018-08-16 16:01:31.000000000 +0900
++++ baseimage-docker-0.11/image/services/cron/cron.sh	2019-02-05 11:17:15.000000000 +0900
+@@ -3,12 +3,12 @@ set -e
+ source /bd_build/buildconfig
+ set -x
+ 
+-$minimal_apt_get_install cron
++#$minimal_apt_get_install cron
+ mkdir /etc/service/cron
+ chmod 600 /etc/crontab
+ cp /bd_build/services/cron/cron.runit /etc/service/cron/run
+ # Fix cron issues in 0.9.19, see also #345: https://github.com/phusion/baseimage-docker/issues/345
+-sed -i 's/^\s*session\s\+required\s\+pam_loginuid.so/# &/' /etc/pam.d/cron
++sed -i 's/^\s*session\s\+required\s\+pam_loginuid.so/# &/' /etc/pam.d/crond
+ 
+ ## Remove useless cron entries.
+ # Checks for lost+found and scans for mtab.
+diff -uprN baseimage-docker-0.11/image/services/sshd/sshd.sh baseimage-docker-0.11/image/services/sshd/sshd.sh
+--- baseimage-docker-0.11/image/services/sshd/sshd.sh	2018-08-16 16:01:31.000000000 +0900
++++ baseimage-docker-0.11/image/services/sshd/sshd.sh	2019-02-05 11:41:28.000000000 +0900
+@@ -6,7 +6,7 @@ set -x
+ SSHD_BUILD_PATH=/bd_build/services/sshd
+ 
+ ## Install the SSH server.
+-$minimal_apt_get_install openssh-server
++#$minimal_apt_get_install openssh-server
+ mkdir /var/run/sshd
+ mkdir /etc/service/sshd
+ touch /etc/service/sshd/down
+diff -uprN baseimage-docker-0.11/image/services/syslog-ng/syslog-ng.init baseimage-docker-0.11/image/services/syslog-ng/syslog-ng.init
+--- baseimage-docker-0.11/image/services/syslog-ng/syslog-ng.init	2018-08-16 16:01:31.000000000 +0900
++++ baseimage-docker-0.11/image/services/syslog-ng/syslog-ng.init	2019-02-12 13:45:45.481509980 +0900
+@@ -5,13 +5,13 @@ set -em
+ # e.g. because of the issue documented at https://github.com/phusion/baseimage-docker/pull/25,
+ # then we remove it.
+ if [ ! -S /dev/log ]; then rm -f /dev/log; fi
+-if [ ! -S /var/lib/syslog-ng/syslog-ng.ctl ]; then rm -f /var/lib/syslog-ng/syslog-ng.ctl; fi
++if [ ! -S /usr/local/var/syslog-ng.ctl ]; then rm -f /usr/local/var/syslog-ng.ctl; fi
+ 
+ # determine output mode on /dev/stdout because of the issue documented at https://github.com/phusion/baseimage-docker/issues/468
+ if [ -p /dev/stdout ]; then
+-  sed -i 's/##SYSLOG_OUTPUT_MODE_DEV_STDOUT##/pipe/' /etc/syslog-ng/syslog-ng.conf
++  sed -i 's/##SYSLOG_OUTPUT_MODE_DEV_STDOUT##/pipe/' /usr/local/etc/syslog-ng.conf
+ else
+-  sed -i 's/##SYSLOG_OUTPUT_MODE_DEV_STDOUT##/file/' /etc/syslog-ng/syslog-ng.conf
++  sed -i 's/##SYSLOG_OUTPUT_MODE_DEV_STDOUT##/file/' /usr/local/etc/syslog-ng.conf
+ fi
+ 
+ # If /var/log is writable by another user logrotate will fail
+@@ -41,5 +41,5 @@ syslogng_wait() {
+     return $RET
+ }
+ 
+-/usr/sbin/syslog-ng --pidfile "$PIDFILE" -F $SYSLOGNG_OPTS &
++/usr/local/sbin/syslog-ng --pidfile "$PIDFILE" -F $SYSLOGNG_OPTS &
+ syslogng_wait 1 $?
+diff -uprN baseimage-docker-0.11/image/services/syslog-ng/syslog-ng.sh baseimage-docker-0.11/image/services/syslog-ng/syslog-ng.sh
+--- baseimage-docker-0.11/image/services/syslog-ng/syslog-ng.sh	2018-08-16 16:01:31.000000000 +0900
++++ baseimage-docker-0.11/image/services/syslog-ng/syslog-ng.sh	2019-02-05 11:14:53.000000000 +0900
+@@ -6,16 +6,16 @@ set -x
+ SYSLOG_NG_BUILD_PATH=/bd_build/services/syslog-ng
+ 
+ ## Install a syslog daemon.
+-$minimal_apt_get_install syslog-ng-core
++#$minimal_apt_get_install syslog-ng-core
+ cp $SYSLOG_NG_BUILD_PATH/syslog-ng.init /etc/my_init.d/10_syslog-ng.init
+ cp $SYSLOG_NG_BUILD_PATH/syslog-ng.shutdown /etc/my_init.post_shutdown.d/10_syslog-ng.shutdown
+ mkdir -p /var/lib/syslog-ng
+ cp $SYSLOG_NG_BUILD_PATH/syslog_ng_default /etc/default/syslog-ng
+ touch /var/log/syslog
+ chmod u=rw,g=r,o= /var/log/syslog
+-cp $SYSLOG_NG_BUILD_PATH/syslog-ng.conf /etc/syslog-ng/syslog-ng.conf
++cp $SYSLOG_NG_BUILD_PATH/syslog-ng.conf /usr/local/etc/syslog-ng.conf
+ 
+ ## Install logrotate.
+-$minimal_apt_get_install logrotate
++#$minimal_apt_get_install logrotate
+ cp $SYSLOG_NG_BUILD_PATH/logrotate.conf /etc/logrotate.conf
+ cp $SYSLOG_NG_BUILD_PATH/logrotate_syslogng /etc/logrotate.d/syslog-ng
+diff -uprN baseimage-docker-0.11/image/system_services.sh baseimage-docker-0.11/image/system_services.sh
+--- baseimage-docker-0.11/image/system_services.sh	2018-08-16 16:01:31.000000000 +0900
++++ baseimage-docker-0.11/image/system_services.sh	2019-02-05 10:21:53.000000000 +0900
+@@ -19,7 +19,7 @@ chmod 640 /etc/container_environment.sh
+ ln -s /etc/container_environment.sh /etc/profile.d/
+ 
+ ## Install runit.
+-$minimal_apt_get_install runit
++#$minimal_apt_get_install runit
+ 
+ ## Install a syslog daemon and logrotate.
+ [ "$DISABLE_SYSLOG" -eq 0 ] && /bd_build/services/syslog-ng/syslog-ng.sh || true
+diff -uprN baseimage-docker-0.11/image/utilities.sh baseimage-docker-0.11/image/utilities.sh
+--- baseimage-docker-0.11/image/utilities.sh	2018-08-16 16:01:31.000000000 +0900
++++ baseimage-docker-0.11/image/utilities.sh	2019-02-04 17:10:31.000000000 +0900
+@@ -4,8 +4,8 @@ source /bd_build/buildconfig
+ set -x
+ 
+ ## Often used tools.
+-$minimal_apt_get_install curl less vim-tiny psmisc gpg-agent dirmngr
+-ln -s /usr/bin/vim.tiny /usr/bin/vim
++#$minimal_apt_get_install curl less vim-tiny psmisc gpg-agent dirmngr
++#ln -s /usr/bin/vim.tiny /usr/bin/vim
+ 
+ ## This tool runs a command as another user and sets $HOME.
+ cp /bd_build/bin/setuser /sbin/setuser
