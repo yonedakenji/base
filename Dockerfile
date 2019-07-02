@@ -29,11 +29,6 @@ RUN curl -L https://github.com/phusion/baseimage-docker/archive/0.11.tar.gz -o b
     /bd_build/cleanup.sh && \
     rm -rf /bd_build
 
-### MySQL ###
-#   uid and gid are set as same host.
-RUN groupadd --gid 1001 mysql && \
-    useradd -g mysql --uid 1001 mysql
-
 ### edit /etc/profile. ###
 COPY profile_for_add .
 RUN cat profile_for_add >> /etc/profile && \
