@@ -34,12 +34,6 @@ RUN curl -L https://github.com/phusion/baseimage-docker/archive/0.11.tar.gz -o b
 RUN groupadd --gid 1001 mysql && \
     useradd -g mysql --uid 1001 mysql
 
-### make directories.
-RUN mkdir /mnt/NAS && \
-    mkdir -p /system/exp/ && \
-    mkdir -p /system/idcapl/log/libcnt && \
-    ln -s /mnt/NAS /system/library
-
 ### edit /etc/profile. ###
 COPY profile_for_add .
 RUN cat profile_for_add >> /etc/profile && \
