@@ -1,6 +1,8 @@
-FROM packages_installed:latest
+FROM yonedakenji/packages_installed:latest
 
 MAINTAINER yonedakenji <yon_ken@yahoo.co.jp>
+
+WORKDIR /tmp
 
 ### locale, timezone ###
 RUN localedef -f UTF-8 -i ja_JP ja_JP.UTF-8 && \
@@ -12,11 +14,11 @@ ENV LANG="ja_JP.UTF-8" \
     TZ="Asia/Tokyo"
 
 ### copy install files. ###
-COPY baseimage-docker-0.11.patch baseimage-docker-0.11.tar.gz /tmp/
-WORKDIR /tmp
+COPY baseimage-docker-0.11.patch /tmp/
 
 ### install baseimage. ###
-RUN tar xfz baseimage-docker-0.11.tar.gz && \
+RUN curl -LO https://github.com/phusion/baseimage-docker/archive/0.11.tar.gz baseimage-docker-0.11.tar.gz && \
+    tar xfz baseimage-docker-0.11.tar.gz && \
     rm baseimage-docker-0.11.tar.gz && \
     patch -p 0 -t < baseimage-docker-0.11.patch && \
     cp -pr baseimage-docker-0.11/image /bd_build && \
